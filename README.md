@@ -27,7 +27,7 @@ It’s perfect for **copy-pasting blank messages**, **text formatting tricks**, 
 
 ## 🔗 Live Demo
 
-👉 [Try Blanko on GitHub Pages](https://thisizasif.github.io/blanko)  
+👉 [Try Blanko on GitHub Pages](https://thisizasif.github.io/Blanko)  
 
 ---
 
