@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Invisible Text Copier</title>
+    <style>
+        :root {
+            --bg: #0b0f14;
+            --panel: #0f1620;
+            --muted: #8190a5;
+            --pri: #39ff88;
+            --pri-2: #12d67a;
+            --accent: #73c3ff;
+            --danger: #ff6b6b;
+            --shadow: 0 20px 40px rgba(0, 0, 0, .45), 0 4px 10px rgba(0, 0, 0, .35);
+            --radius: 18px;
+            --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        }
+
+        * {
+            box-sizing: border-box
+        }
+
+        html,
+        body {
+            height: 100%
+        }
+
+        body {
+            margin: 0;
+            background: radial-gradient(1200px 600px at 10% -10%, rgba(57, 255, 136, .08), transparent 60%),
+                radial-gradient(1000px 600px at 110% 10%, rgba(115, 195, 255, .08), transparent 60%),
+                var(--bg);
+            color: #e6f0ff;
+            font-family: var(--mono);
+            letter-spacing: .2px;
+            overflow-y: auto;
+        }
+
+        .wrap {
+            max-width: 1100px;
+            margin: 48px auto;
+            padding: 0 28px
+        }
+
+        header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 28px
+        }
+
+        .logo {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            /* background: linear-gradient(135deg, rgba(57, 255, 136, .25), rgba(115, 195, 255, .25)); */
+            background: linear-gradient(135deg,
+                    rgba(0, 240, 255, 0.9) 0%,
+                    rgba(255, 0, 200, 0.9) 50%,
+                    rgba(255, 150, 0, 0.9) 100%);
+            display: grid;
+            place-items: center;
+            box-shadow: var(--shadow);
+        }
+
+        .logo:before {
+            content: "\200B"
+        }
+
+        h1 {
+            font-size: 28px;
+            margin: 0
+        }
+
+        .tag {
+            color: var(--muted);
+            font-size: 13px
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 360px 1fr;
+            gap: 24px
+        }
+
+        .card {
+            background: linear-gradient(180deg, rgba(255, 255, 255, .03), rgba(255, 255, 255, .01));
+            border: 1px solid rgba(130, 160, 200, .18);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow)
+        }
+
+        .controls {
+            padding: 18px
+        }
+
+        .controls h2 {
+            margin: 4px 0 12px;
+            font-size: 15px;
+            color: var(--muted);
+            font-weight: 600
+        }
+
+        .row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 10px 0
+        }
+
+        .row label {
+            font-size: 13px;
+            color: #c7d2e0;
+            min-width: 130px
+        }
+
+        .row input[type="number"],
+        .row select {
+            flex: 1;
+            background: #0c121a;
+            border: 1px solid #293241;
+            color: #e6f0ff;
+            border-radius: 12px;
+            padding: 12px 14px;
+            outline: none
+        }
+
+        .row input[type="number"]:focus,
+        .row select:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(115, 195, 255, .25)
+        }
+
+        .btns {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 16px
+        }
+
+        button {
+            cursor: pointer;
+            border: none;
+            border-radius: 14px;
+            padding: 12px 14px;
+            font-weight: 700;
+            letter-spacing: .4px;
+            background: #121a24;
+            color: #dff9ec;
+            transition: transform .04s ease, filter .18s ease, background .18s ease
+        }
+
+        button:hover {
+            filter: brightness(1.1)
+        }
+
+        button:active {
+            transform: translateY(1px)
+        }
+
+        .primary {
+            background: linear-gradient(180deg, rgba(57, 255, 136, .22), rgba(18, 214, 122, .18));
+            outline: 1px solid rgba(57, 255, 136, .35)
+        }
+
+        .ghost {
+            background: #0f1620;
+            outline: 1px dashed rgba(130, 160, 200, .35)
+        }
+
+        .danger {
+            background: linear-gradient(180deg, rgba(255, 107, 107, .22), rgba(255, 107, 107, .15));
+            outline: 1px solid rgba(255, 107, 107, .35)
+        }
+
+        .out {
+            padding: 0;
+            overflow: hidden
+        }
+
+        .out-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 14px;
+            border-bottom: 1px dashed rgba(130, 160, 200, .25);
+            color: var(--muted);
+            font-size: 13px
+        }
+
+        .chip {
+            padding: 6px 10px;
+            border-radius: 24px;
+            background: #0c121a;
+            border: 1px solid rgba(130, 160, 200, .25)
+        }
+
+        .view {
+            min-height: 140px;
+            padding: 16px;
+            font-size: 16px;
+            line-height: 1.7;
+            word-break: break-all
+        }
+
+        .view.revealed span {
+            background: rgba(57, 255, 136, .12);
+            color: #e6f0ff;
+            box-shadow: inset 0 0 0 1px rgba(57, 255, 136, .35)
+        }
+
+        .view span {
+            border-radius: 8px;
+            padding: 2px 4px;
+        }
+
+        .mini {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 14px;
+            border-top: 1px dashed rgba(130, 160, 200, .25);
+            color: var(--muted);
+            font-size: 12px
+        }
+
+        .switch {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            user-select: none
+        }
+
+        .switch input {
+            appearance: none;
+            width: 42px;
+            height: 26px;
+            background: #0c121a;
+            border: 1px solid #293241;
+            border-radius: 32px;
+            position: relative;
+            outline: none;
+            cursor: pointer
+        }
+
+        .switch input:checked {
+            border-color: var(--pri-2)
+        }
+
+        .switch input:before {
+            content: "";
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #cfe;
+            top: 3px;
+            left: 3px;
+            transition: all .2s
+        }
+
+        .switch input:checked:before {
+            left: 21px;
+            background: #bffadd
+        }
+
+        .terminal {
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden
+        }
+
+        .term-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 12px;
+            background: linear-gradient(180deg, rgba(0, 0, 0, .4), rgba(255, 255, 255, .03));
+            border-bottom: 1px solid rgba(130, 160, 200, .15)
+        }
+
+        .dots {
+            display: flex;
+            gap: 8px
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%
+        }
+
+        .dot.r {
+            background: #ff6b6b
+        }
+
+        .dot.y {
+            background: #ffd166
+        }
+
+        .dot.g {
+            background: #06d6a0
+        }
+
+        .term-title {
+            font-size: 12px;
+            color: var(--muted)
+        }
+
+        .term-body {
+            padding: 14px;
+            font-size: 13px;
+            color: #b7e9c6;
+            overflow: auto;
+            min-height: 260px
+        }
+
+        .line {
+            white-space: pre-wrap;
+            margin: 6px 0
+        }
+
+        .line .ts {
+            color: #77c9ff
+        }
+
+        .line .cmd {
+            color: var(--pri)
+        }
+
+        .history {
+            padding: 0;
+            overflow: hidden
+        }
+
+        .history .head {
+            padding: 10px 12px;
+            border-bottom: 1px dashed rgba(130, 160, 200, .25);
+            color: var(--muted);
+            font-size: 13px
+        }
+
+        .history .list {
+            max-height: 180px;
+            overflow: auto
+        }
+
+        .history .item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 10px 14px;
+            border-bottom: 1px dashed rgba(130, 160, 200, .12)
+        }
+
+        .history .code {
+            font-size: 12px;
+            color: #a5ffd6;
+            word-break: break-all
+        }
+
+        .history .copy {
+            font-size: 11px;
+            padding: 6px 10px
+        }
+
+        .footer {
+            margin-top: 18px;
+            color: var(--muted);
+            font-size: 12px;
+            text-align: center
+        }
+
+        .footer a {
+            color: var(--accent);
+            text-decoration: none
+        }
+
+        @media (max-width: 980px) {
+            .grid {
+                display: none
+            }
+
+            .mobile-block {
+                display: block
+            }
+        }
+
+        .mobile-block {
+            display: none;
+            background: rgba(0, 0, 0, .35);
+            border: 1px solid rgba(130, 160, 200, .25);
+            border-radius: 16px;
+            padding: 18px
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wrap">
+        <header>
+            <div class="logo" aria-hidden="true"></div>
+            <div>
+                <h1>Blanko</h1>
+                <div class="tag">Generate and copy zero‑width / blank characters for testing, spacing tricks, or
+                    placeholders.</div>
+            </div>
+        </header>
+
+        <div class="mobile-block">
+            This tool is optimized for desktop screens. Please open it on a larger display for the full interface.
+        </div>
+
+        <div class="grid">
+            <section class="card controls" aria-label="controls">
+                <h2>Generator</h2>
+                <div class="row">
+                    <label for="count">Number of characters</label>
+                    <input id="count" type="number" min="1" max="100000" step="1" value="64" />
+                </div>
+                <div class="row">
+                    <label for="type">Character type</label>
+                    <select id="type">
+                        <option value="lrm">LRM (\u200E)</option>
+                        <option value="rlm">RLM (\u200F)</option>
+                        <option value="zwsp">ZWSP (\u200B)</option>
+                        <option value="nbsp">NBSP (\u00A0)</option>
+                        <option value="braille">Braille Blank (\u2800)</option>
+                        <option value="mixed" selected>Mixed</option>
+                    </select>
+                </div>
+                <div class="btns">
+                    <button id="gen" class="primary">Generate</button>
+                    <button id="rand" class="ghost" title="Randomize settings">Random</button>
+                    <button id="copy" class="primary">Copy Output</button>
+                    <button id="clear" class="danger">Clear</button>
+                </div>
+
+                <h2 style="margin-top:18px">Output</h2>
+                <div class="card out">
+                    <div class="out-header">
+                        <div>Length: <span id="len" class="chip">0</span></div>
+                        <div class="switch">
+                            <label for="reveal">Reveal</label>
+                            <input id="reveal" type="checkbox" />
+                        </div>
+                    </div>
+                    <div id="view" class="view" aria-live="polite"></div>
+                    <div class="mini">
+                        <div>Unicode preview glyph: <span id="glyph" class="chip">—</span></div>
+                        <div id="status">Ready.</div>
+                    </div>
+                </div>
+
+                <div class="btns" style="margin-top:10px">
+                    <button id="copyHistory" class="ghost">Copy History</button>
+                    <button id="wipeHistory" class="danger">Wipe History</button>
+                </div>
+            </section>
+
+            <section class="card terminal" aria-label="terminal">
+                <div class="term-head">
+                    <div class="dots"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+                    </div>
+                    <div class="term-title">session.log</div>
+                </div>
+                <div id="term" class="term-body" role="log" aria-live="polite"></div>
+            </section>
+
+            <section class="card history" aria-label="history">
+                <div class="head">Generation History</div>
+                <div id="history" class="list"></div>
+            </section>
+        </div>
+
+        <div class="footer">Tip: Toggle <strong>Reveal</strong> to visualize blanks safely (they’ll show as subtle
+            blocks in the preview only).</div>
+    </div>
+    <footer class="footer">
+        <p>© 2025 Thisizasif • All Rights Reserved</p>
+    </footer>
+
+
+
+    <script>
+        // Character maps
+        const CHARSETS = {
+            lrm: "\u200E",
+            rlm: "\u200F",
+            zwsp: "\u200B",
+            nbsp: "\u00A0",
+            braille: "\u2800",
+        };
+        const MIXED_KEYS = Object.keys(CHARSETS);
+
+        // DOM refs
+        const $ = (q) => document.querySelector(q);
+
+        const elCount = $('#count');
+        const elType = $('#type');
+        const elGenerate = $('#gen');
+        const elRandom = $('#rand');
+        const elCopy = $('#copy');
+        const elClear = $('#clear');
+        const elCopyHistory = $('#copyHistory');
+        const elWipeHistory = $('#wipeHistory');
+        const elLen = $('#len');
+        const elView = $('#view');
+        const elReveal = $('#reveal');
+        const elGlyph = $('#glyph');
+        const elTerm = $('#term');
+        const elHistory = $('#history');
+        const elStatus = $('#status');
+
+        const state = {
+            output: "",
+            history: [],
+        };
+
+        function ts() {
+            const d = new Date();
+            return d.toLocaleTimeString([], { hour12: false });
+        }
+
+        function log(cmd, info = "") { addLine(`[${ts()}] $ ${cmd}`, info); }
+        function addLine(main, info) {
+            const div = document.createElement('div');
+            div.className = 'line';
+            div.innerHTML = `<span class="ts">${main.split('$')[0]}</span><span class="cmd">$${main.split('$')[1] || ''}</span> ${info}`;
+            elTerm.appendChild(div);
+            elTerm.scrollTop = elTerm.scrollHeight;
+        }
+
+        function glyphFor(type) {
+            const map = { lrm: 'LRM', rlm: 'RLM', zwsp: 'ZWSP', nbsp: 'NBSP', braille: 'BRAILLE' };
+            return map[type] || 'MIXED';
+        }
+
+        function generate() {
+            const n = Math.max(1, Math.min(100000, Number(elCount.value) || 0));
+            const type = elType.value;
+            let s = '';
+            if (type === 'mixed') {
+                for (let i = 0; i < n; i++) {
+                    const k = MIXED_KEYS[Math.floor(Math.random() * MIXED_KEYS.length)];
+                    s += CHARSETS[k];
+                }
+            } else {
+                s = CHARSETS[type].repeat(n);
+            }
+            state.output = s;
+            elLen.textContent = String(s.length);
+            renderOutput();
+            pushHistory({ length: s.length, type, text: s });
+            log('generate', `type=${type} count=${n}`);
+            setStatus('Generated.');
+        }
+
+        function renderOutput() {
+            if (elReveal.checked) {
+                const chars = Array.from(state.output).map(() => `<span>·</span>`).join('');
+                elView.classList.add('revealed');
+                elView.innerHTML = chars || '<span>—</span>';
+            } else {
+                elView.classList.remove('revealed');
+                elView.textContent = state.output;
+            }
+            const t = elType.value;
+            elGlyph.textContent = glyphFor(t);
+        }
+
+        async function copy(text) {
+            try {
+                await navigator.clipboard.writeText(text);
+                setStatus('Copied to clipboard.');
+                return true;
+            } catch (e) {
+                setStatus('Copy failed. Select and press Ctrl/Cmd+C.');
+                return false;
+            }
+        }
+
+        function setStatus(msg) { elStatus.textContent = msg; }
+
+        function randomize() {
+            const rCount = Math.floor(Math.random() * 512) + 16; // 16..527
+            const types = Object.keys(CHARSETS).concat('mixed');
+            const rType = types[Math.floor(Math.random() * types.length)];
+            elCount.value = rCount;
+            elType.value = rType;
+            log('random', `type=${rType} count=${rCount}`);
+            setStatus('Randomized.');
+        }
+
+        function pushHistory(entry) {
+            state.history.unshift({ ...entry, time: new Date().toISOString() });
+            state.history = state.history.slice(0, 50);
+            renderHistory();
+        }
+
+        function renderHistory() {
+            elHistory.innerHTML = '';
+            state.history.forEach((h, idx) => {
+                const row = document.createElement('div');
+                row.className = 'item';
+                const time = new Date(h.time).toLocaleTimeString([], { hour12: false });
+                row.innerHTML = `
+          <div class="code">[#${String(state.history.length - idx).padStart(2, '0')}] ${time} · ${h.type} · len=${h.length}</div>
+          <div>
+            <button class="copy" data-idx="${idx}">Copy</button>
+          </div>`;
+                elHistory.appendChild(row);
+            });
+        }
+
+        function historyToText() {
+            return state.history.map(h => `${h.time}\t${h.type}\tlen=${h.length}`).join('\n');
+        }
+
+        // Events
+        elGenerate.addEventListener('click', generate);
+        elRandom.addEventListener('click', randomize);
+        elReveal.addEventListener('change', renderOutput);
+
+        elCopy.addEventListener('click', () => {
+            copy(state.output);
+            log('copy output');
+        });
+
+        elClear.addEventListener('click', () => {
+            state.output = ''; renderOutput(); elLen.textContent = '0'; log('clear'); setStatus('Cleared.');
+        });
+
+        elCopyHistory.addEventListener('click', async () => {
+            await copy(historyToText());
+            log('copy history');
+        });
+
+        elWipeHistory.addEventListener('click', () => {
+            state.history = []; renderHistory(); log('wipe history'); setStatus('History wiped.');
+        });
+
+        elHistory.addEventListener('click', (e) => {
+            const btn = e.target.closest('button.copy');
+            if (!btn) return;
+            const idx = Number(btn.dataset.idx);
+            const h = state.history[idx];
+            if (!h) return;
+            copy(h.text); // use stored string
+            log('copy from history', `idx=${idx}`);
+        });
+
+        // Init
+        randomize();
+        generate();
+    </script>
+</body>
+
+</html>

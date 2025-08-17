@@ -1,0 +1,1029 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Blanko — Tablet</title>
+
+    <style>
+        /* ===========================
+       Core visual variables (kept from desktop.html style)
+       =========================== */
+        :root {
+            --bg: #0b0f14;
+            --panel: #0f1620;
+            --muted: #8190a5;
+            --pri: #39ff88;
+            --pri-2: #12d67a;
+            --accent: #73c3ff;
+            --danger: #ff6b6b;
+            --shadow: 0 20px 40px rgba(0, 0, 0, .45), 0 4px 10px rgba(0, 0, 0, .35);
+            --radius: 18px;
+            --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        }
+
+        /* ===========================
+       Reset & base
+       =========================== */
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background:
+                radial-gradient(1200px 600px at 10% -10%, rgba(57, 255, 136, .08), transparent 60%),
+                radial-gradient(1000px 600px at 110% 10%, rgba(115, 195, 255, .08), transparent 60%),
+                var(--bg);
+            color: #e6f0ff;
+            font-family: var(--mono);
+            letter-spacing: .2px;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            overflow-y: auto;
+            min-height: 100vh;
+        }
+
+        /* ===========================
+       App wrapper (centered tablet layout)
+       =========================== */
+        .wrap {
+            max-width: 1100px;
+            margin: 36px auto;
+            padding: 0 28px;
+        }
+
+        header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+
+        .logo {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, rgba(0, 240, 255, 0.9) 0%, rgba(255, 0, 200, 0.9) 50%, rgba(255, 150, 0, 0.9) 100%);
+            display: grid;
+            place-items: center;
+            box-shadow: var(--shadow);
+        }
+
+        .logo:before {
+            content: "\200B";
+        }
+
+        h1 {
+            font-size: 28px;
+            margin: 0;
+        }
+
+        .tag {
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        /* ===========================
+       Tablet-only visibility
+       - .tablet-app contains the full interface
+       - .not-tablet shows a full-screen message when NOT in tablet range
+       =========================== */
+
+        /* Default: hide the app, show not-tablet message; CSS will reveal the app for tablets */
+        .tablet-app {
+            display: none;
+        }
+
+        .not-tablet {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: calc(100vh - 40px);
+            padding: 20px;
+        }
+
+        /* The neon box shown to non-tablet users */
+        .not-tablet .panel-msg {
+            width: min(760px, 92%);
+            background: linear-gradient(180deg, rgba(255, 255, 255, .02), rgba(255, 255, 255, .01));
+            border: 1px solid rgba(130, 160, 200, .12);
+            border-radius: 20px;
+            padding: 28px;
+            box-shadow: var(--shadow);
+            text-align: center;
+        }
+
+        .not-tablet h2 {
+            margin: 0 0 12px 0;
+            font-size: 20px;
+            color: #e6f0ff;
+        }
+
+        .not-tablet p {
+            color: var(--muted);
+            font-size: 15px;
+            margin: 0 0 16px 0;
+        }
+
+        .not-tablet .hint {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            align-items: center;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        .hint .box {
+            padding: 10px 14px;
+            border-radius: 12px;
+            background: rgba(12, 18, 26, .6);
+            border: 1px solid rgba(130, 160, 200, .12);
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        /* Tablet range: reveal the app and hide not-tablet message */
+        @media (min-width:600px) and (max-width:1024px) {
+            .tablet-app {
+                display: block;
+            }
+
+            .not-tablet {
+                display: none;
+            }
+        }
+
+        /* Larger screens: show not-tablet message (asked) */
+        @media (min-width:1025px) {
+            .tablet-app {
+                display: none;
+            }
+
+            .not-tablet {
+                display: flex;
+            }
+        }
+
+        @media (max-width:599px) {
+            .tablet-app {
+                display: none;
+            }
+
+            .not-tablet {
+                display: flex;
+            }
+        }
+
+        /* ===========================
+       Grid layout (tablet two-column split)
+       same visual structure as desktop.html but adjusted for tablet proportions
+       =========================== */
+        .grid {
+            display: grid;
+            grid-template-columns: 380px 1fr;
+            gap: 24px;
+            align-items: start;
+        }
+
+        .card {
+            background: linear-gradient(180deg, rgba(255, 255, 255, .03), rgba(255, 255, 255, .01));
+            border: 1px solid rgba(130, 160, 200, .18);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+        }
+
+        .controls {
+            padding: 18px;
+        }
+
+        .controls h2 {
+            margin: 4px 0 12px;
+            font-size: 15px;
+            color: var(--muted);
+            font-weight: 600;
+        }
+
+        .row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 10px 0;
+        }
+
+        .row label {
+            font-size: 13px;
+            color: #c7d2e0;
+            min-width: 130px;
+        }
+
+        .row input[type="number"],
+        .row select {
+            flex: 1;
+            background: #0c121a;
+            border: 1px solid #293241;
+            color: #e6f0ff;
+            border-radius: 12px;
+            padding: 12px 14px;
+            outline: none;
+            font-size: 14px;
+        }
+
+        .row input[type="number"]:focus,
+        .row select:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(115, 195, 255, .25);
+        }
+
+        .btns {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 16px;
+        }
+
+        button {
+            cursor: pointer;
+            border: none;
+            border-radius: 14px;
+            padding: 12px 14px;
+            font-weight: 700;
+            letter-spacing: .4px;
+            background: #121a24;
+            color: #dff9ec;
+            transition: transform .04s ease, filter .18s ease, background .18s ease;
+            font-size: 14px;
+        }
+
+        button:hover {
+            filter: brightness(1.06);
+        }
+
+        button:active {
+            transform: translateY(1px);
+        }
+
+        .primary {
+            background: linear-gradient(180deg, rgba(57, 255, 136, .22), rgba(18, 214, 122, .18));
+            outline: 1px solid rgba(57, 255, 136, .35);
+        }
+
+        .ghost {
+            background: #0f1620;
+            outline: 1px dashed rgba(130, 160, 200, .35);
+        }
+
+        .danger {
+            background: linear-gradient(180deg, rgba(255, 107, 107, .22), rgba(255, 107, 107, .15));
+            outline: 1px solid rgba(255, 107, 107, .35);
+        }
+
+        .out {
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .out-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 14px;
+            border-bottom: 1px dashed rgba(130, 160, 200, .25);
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .chip {
+            padding: 6px 10px;
+            border-radius: 24px;
+            background: #0c121a;
+            border: 1px solid rgba(130, 160, 200, .25);
+            font-size: 13px;
+        }
+
+        .view {
+            min-height: 140px;
+            padding: 16px;
+            font-size: 16px;
+            line-height: 1.7;
+            word-break: break-all;
+            color: #e6f0ff;
+            background: transparent;
+        }
+
+        .view.revealed span {
+            background: rgba(57, 255, 136, .12);
+            color: #e6f0ff;
+            box-shadow: inset 0 0 0 1px rgba(57, 255, 136, .35);
+        }
+
+        .view span {
+            border-radius: 8px;
+            padding: 2px 4px;
+        }
+
+        .mini {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 14px;
+            border-top: 1px dashed rgba(130, 160, 200, .25);
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .switch {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            user-select: none;
+        }
+
+        .switch input {
+            appearance: none;
+            width: 42px;
+            height: 26px;
+            background: #0c121a;
+            border: 1px solid #293241;
+            border-radius: 32px;
+            position: relative;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .switch input:checked {
+            border-color: var(--pri-2);
+        }
+
+        .switch input:before {
+            content: "";
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #cfe;
+            top: 3px;
+            left: 3px;
+            transition: all .2s;
+        }
+
+        .switch input:checked:before {
+            left: 21px;
+            background: #bffadd;
+        }
+
+        .terminal {
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .term-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 12px;
+            background: linear-gradient(180deg, rgba(0, 0, 0, .4), rgba(255, 255, 255, .03));
+            border-bottom: 1px solid rgba(130, 160, 200, .15);
+        }
+
+        .dots {
+            display: flex;
+            gap: 8px;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .dot.r {
+            background: #ff6b6b;
+        }
+
+        .dot.y {
+            background: #ffd166;
+        }
+
+        .dot.g {
+            background: #06d6a0;
+        }
+
+        .term-title {
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        .term-body {
+            padding: 14px;
+            font-size: 13px;
+            color: #b7e9c6;
+            overflow: auto;
+            min-height: 260px;
+            background: linear-gradient(180deg, rgba(0, 0, 0, .02), rgba(255, 255, 255, 0));
+        }
+
+        .line {
+            white-space: pre-wrap;
+            margin: 6px 0;
+        }
+
+        .line .ts {
+            color: #77c9ff;
+        }
+
+        .line .cmd {
+            color: var(--pri);
+        }
+
+        .history {
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .history .head {
+            padding: 10px 12px;
+            border-bottom: 1px dashed rgba(130, 160, 200, .25);
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .history .list {
+            max-height: 180px;
+            overflow: auto;
+        }
+
+        .history .item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 10px 14px;
+            border-bottom: 1px dashed rgba(130, 160, 200, .12);
+        }
+
+        .history .code {
+            font-size: 12px;
+            color: #a5ffd6;
+            word-break: break-all;
+        }
+
+        .history .copy {
+            font-size: 11px;
+            padding: 6px 10px;
+        }
+
+        .footer {
+            margin-top: 18px;
+            color: var(--muted);
+            font-size: 12px;
+            text-align: center;
+        }
+
+        .footer a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        /* small adjustments for narrower tablets (optional) */
+        @media (max-width: 800px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* small scrollbars */
+        ::-webkit-scrollbar {
+            height: 8px;
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, .04);
+            border-radius: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        /* ===========================
+       End of CSS
+       =========================== */
+    </style>
+</head>
+
+<body>
+    <!-- NOT-TABLET MESSAGE (shown for <600px and >1024px by CSS) -->
+    <div class="not-tablet" role="status" aria-live="polite">
+        <div class="panel-msg" role="dialog" aria-labelledby="msgTitle" aria-describedby="msgDesc">
+            <h2 id="msgTitle">Blanko — Tablet Only</h2>
+            <p id="msgDesc">This version of Blanko is optimized for tablet devices (screen width between 600px and
+                1024px).</p>
+            <div class="hint">
+                <div class="box">If you're on a phone: switch to a tablet device.</div>
+                <div class="box">If you're on a desktop: resize this browser window to tablet size (600–1024px).</div>
+            </div>
+            <div style="margin-top:16px; color:var(--muted); font-size:13px;">When you switch to a tablet-sized viewport
+                the application will appear.</div>
+            <div style="margin-top:18px;">
+                <button id="tryResize" class="ghost" style="border-radius:12px; padding:10px 14px;">Check size
+                    now</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TABLET APP (visible only inside 600px..1024px) -->
+    <div class="tablet-app">
+        <div class="wrap" role="application" aria-label="Blanko tablet app">
+
+            <!-- Header -->
+            <header>
+                <div class="logo" aria-hidden="true"></div>
+                <div>
+                    <h1>Blanko</h1>
+                    <div class="tag">Generate and copy zero-width / blank characters for testing, spacing tricks, or
+                        placeholders.</div>
+                </div>
+            </header>
+
+            <!-- Grid: left controls, right terminal & history -->
+            <div class="grid" role="main">
+
+                <!-- Controls column -->
+                <section class="card controls" aria-label="controls">
+                    <h2>Generator</h2>
+
+                    <div class="row">
+                        <label for="count">Number of characters</label>
+                        <input id="count" type="number" min="1" max="100000" step="1" value="64" inputmode="numeric" />
+                    </div>
+
+                    <div class="row">
+                        <label for="type">Character type</label>
+                        <select id="type" aria-label="Character type">
+                            <option value="lrm">LRM (\u200E)</option>
+                            <option value="rlm">RLM (\u200F)</option>
+                            <option value="zwsp">ZWSP (\u200B)</option>
+                            <option value="nbsp">NBSP (\u00A0)</option>
+                            <option value="braille">Braille Blank (\u2800)</option>
+                            <option value="mixed" selected>Mixed</option>
+                        </select>
+                    </div>
+
+                    <div class="btns" role="group" aria-label="Generator controls">
+                        <button id="gen" class="primary">Generate</button>
+                        <button id="rand" class="ghost" title="Randomize settings">Random</button>
+                        <button id="copy" class="primary">Copy Output</button>
+                        <button id="clear" class="danger">Clear</button>
+                    </div>
+
+                    <h2 style="margin-top:18px;">Output</h2>
+
+                    <div class="card out" style="margin-top:8px;">
+                        <div class="out-header">
+                            <div>Length: <span id="len" class="chip">0</span></div>
+                            <div class="switch" title="Reveal blanks">
+                                <label for="reveal"
+                                    style="color:var(--muted); font-size:13px; margin-right:8px;">Reveal</label>
+                                <input id="reveal" type="checkbox" role="switch" aria-checked="false" />
+                            </div>
+                        </div>
+
+                        <div id="view" class="view" aria-live="polite" role="region" aria-label="Output preview"></div>
+
+                        <div class="mini">
+                            <div>Unicode preview glyph: <span id="glyph" class="chip">—</span></div>
+                            <div id="status" style="color:var(--muted)">Ready.</div>
+                        </div>
+                    </div>
+
+                    <div class="btns" style="margin-top:12px;">
+                        <button id="copyHistory" class="ghost">Copy History</button>
+                        <button id="wipeHistory" class="danger">Wipe History</button>
+                    </div>
+                </section>
+
+                <!-- Right column: Terminal + History -->
+                <section style="display:flex; flex-direction:column; gap:24px;">
+                    <!-- Terminal -->
+                    <section class="card terminal" aria-label="terminal">
+                        <div class="term-head">
+                            <div class="dots" aria-hidden="true">
+                                <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+                            </div>
+                            <div class="term-title">session.log</div>
+                        </div>
+
+                        <div id="term" class="term-body" role="log" aria-live="polite"></div>
+                    </section>
+
+                    <!-- History -->
+                    <section class="card history" aria-label="history">
+                        <div class="head">Generation History</div>
+                        <div id="history" class="list" role="list"></div>
+                    </section>
+                </section>
+
+            </div> <!-- end grid -->
+
+            <div class="footer">Tip: Toggle <strong>Reveal</strong> to visualize blanks safely (they’ll show as subtle
+                blocks in the preview only).</div>
+
+        </div> <!-- end wrap -->
+    </div> <!-- end tablet-app -->
+    <footer class="footer">
+        <p>© 2025 Thisizasif • All Rights Reserved</p>
+    </footer>
+
+
+    <!-- ===========================
+       Scripts (Tablet-only initialization, boot animation, app logic)
+       =========================== -->
+    <script>
+        /*
+          Tablet-only app script.
+          - Will only initialize the interactive app when viewport width is between 600 and 1024.
+          - On other sizes, the "not-tablet" panel is shown (CSS) and app is not initialized.
+          - There is a boot/typing terminal sequence before app becomes interactive.
+          - All core features preserved: generate, copy, reveal, randomize, clear, history (copy/wipe), terminal logging.
+        */
+
+        (function () {
+            // DOM helpers
+            const $ = (s) => document.querySelector(s);
+            const $$ = (s) => Array.from(document.querySelectorAll(s));
+
+            // Elements
+            const notTablet = document.querySelector('.not-tablet');
+            const tryResizeBtn = document.getElementById('tryResize');
+
+            const tabletApp = document.querySelector('.tablet-app');
+            const elCount = $('#count');
+            const elType = $('#type');
+            const elGenerate = $('#gen');
+            const elRandom = $('#rand');
+            const elCopy = $('#copy');
+            const elClear = $('#clear');
+            const elCopyHistory = $('#copyHistory');
+            const elWipeHistory = $('#wipeHistory');
+            const elLen = $('#len');
+            const elView = $('#view');
+            const elReveal = $('#reveal');
+            const elGlyph = $('#glyph');
+            const elTerm = $('#term');
+            const elHistory = $('#history');
+            const elStatus = $('#status');
+
+            // Charset definitions (same as desktop)
+            const CHARSETS = {
+                lrm: "\u200E",
+                rlm: "\u200F",
+                zwsp: "\u200B",
+                nbsp: "\u00A0",
+                braille: "\u2800",
+            };
+            const MIXED_KEYS = Object.keys(CHARSETS);
+
+            // Application state
+            const state = {
+                output: "",
+                history: [],
+                initialized: false,
+                booted: false
+            };
+
+            // Utility functions
+            function isTabletWidth() {
+                return window.innerWidth >= 600 && window.innerWidth <= 1024;
+            }
+
+            // Terminal helpers
+            function ts() { const d = new Date(); return d.toLocaleTimeString([], { hour12: false }); }
+            function addLine(main, info = "") {
+                const div = document.createElement('div');
+                div.className = 'line';
+                // safe HTML: main is expected to be safe here (we control content)
+                div.innerHTML = `<span class="ts">${main.split('$')[0]}</span><span class="cmd">$${main.split('$')[1] || ''}</span> ${escapeHtml(info)}`;
+                elTerm.appendChild(div);
+                elTerm.scrollTop = elTerm.scrollHeight;
+            }
+            function log(cmd, info = "") { addLine(`[${ts()}] $ ${cmd}`, info); }
+
+            function escapeHtml(str) {
+                if (!str) return '';
+                return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            }
+
+            function glyphFor(type) {
+                const map = { lrm: 'LRM', rlm: 'RLM', zwsp: 'ZWSP', nbsp: 'NBSP', braille: 'BRAILLE' };
+                return map[type] || 'MIXED';
+            }
+
+            function setStatus(msg) { if (elStatus) elStatus.textContent = msg; }
+
+            // Clipboard copy
+            async function copyText(text) {
+                try {
+                    await navigator.clipboard.writeText(text);
+                    setStatus('Copied to clipboard.');
+                    return true;
+                } catch (e) {
+                    setStatus('Copy failed. Select and press Ctrl/Cmd+C.');
+                    return false;
+                }
+            }
+
+            // Generate function (identical algorithm to desktop)
+            function generate() {
+                const n = Math.max(1, Math.min(100000, Number(elCount.value) || 0));
+                const type = elType.value;
+                let s = '';
+                if (type === 'mixed') {
+                    for (let i = 0; i < n; i++) {
+                        const k = MIXED_KEYS[Math.floor(Math.random() * MIXED_KEYS.length)];
+                        s += CHARSETS[k];
+                    }
+                } else {
+                    s = CHARSETS[type].repeat(n);
+                }
+                state.output = s;
+                if (elLen) elLen.textContent = String(s.length);
+                renderOutput();
+                pushHistory({ length: s.length, type, text: s });
+                log('generate', `type=${type} count=${n}`);
+                setStatus('Generated.');
+            }
+
+            // Render preview
+            function renderOutput() {
+                if (!elView) return;
+                if (elReveal && elReveal.checked) {
+                    const chars = Array.from(state.output).map(() => `<span>·</span>`).join('');
+                    elView.classList.add('revealed');
+                    elView.innerHTML = chars || '<span>—</span>';
+                } else {
+                    elView.classList.remove('revealed');
+                    // set as textContent so zero-width chars remain invisible
+                    elView.textContent = state.output;
+                }
+                const t = elType ? elType.value : '';
+                if (elGlyph) elGlyph.textContent = glyphFor(t);
+            }
+
+            // Randomize controls
+            function randomize() {
+                const rCount = Math.floor(Math.random() * 512) + 16;
+                const types = Object.keys(CHARSETS).concat('mixed');
+                const rType = types[Math.floor(Math.random() * types.length)];
+                elCount.value = rCount;
+                elType.value = rType;
+                log('random', `type=${rType} count=${rCount}`);
+                setStatus('Randomized.');
+            }
+
+            // History functions
+            function pushHistory(entry) {
+                state.history.unshift({ ...entry, time: new Date().toISOString() });
+                state.history = state.history.slice(0, 50);
+                renderHistory();
+            }
+
+            function renderHistory() {
+                if (!elHistory) return;
+                elHistory.innerHTML = '';
+                state.history.forEach((h, idx) => {
+                    const row = document.createElement('div');
+                    row.className = 'item';
+                    const time = new Date(h.time).toLocaleTimeString([], { hour12: false });
+                    const label = `[#${String(state.history.length - idx).padStart(2, '0')}] ${time} · ${h.type} · len=${h.length}`;
+                    row.innerHTML = `
+            <div class="code">${escapeHtml(label)}</div>
+            <div><button class="copy" data-idx="${idx}">Copy</button></div>
+          `;
+                    elHistory.appendChild(row);
+                });
+            }
+
+            function historyToText() {
+                return state.history.map(h => `${h.time}\t${h.type}\tlen=${h.length}`).join('\n');
+            }
+
+            // Event wiring (delegated where helpful)
+            function wireEvents() {
+                if (!elGenerate) return;
+                elGenerate.addEventListener('click', generate);
+                elRandom.addEventListener('click', randomize);
+                elReveal.addEventListener('change', renderOutput);
+
+                elCopy.addEventListener('click', async () => {
+                    await copyText(state.output);
+                    log('copy output');
+                });
+
+                elClear.addEventListener('click', () => {
+                    state.output = '';
+                    renderOutput();
+                    if (elLen) elLen.textContent = '0';
+                    log('clear');
+                    setStatus('Cleared.');
+                });
+
+                elCopyHistory.addEventListener('click', async () => {
+                    await copyText(historyToText());
+                    log('copy history');
+                });
+
+                elWipeHistory.addEventListener('click', () => {
+                    state.history = [];
+                    renderHistory();
+                    log('wipe history');
+                    setStatus('History wiped.');
+                });
+
+                // history copy buttons (delegate)
+                elHistory.addEventListener('click', (e) => {
+                    const btn = e.target.closest('button.copy');
+                    if (!btn) return;
+                    const idx = Number(btn.dataset.idx);
+                    const h = state.history[idx];
+                    if (!h) return;
+                    copyText(h.text);
+                    log('copy from history', `idx=${idx}`);
+                });
+
+                // keyboard shortcuts (for tablets with keyboards)
+                document.addEventListener('keydown', (ev) => {
+                    if ((ev.ctrlKey || ev.metaKey) && !ev.shiftKey) {
+                        const key = ev.key.toLowerCase();
+                        if (key === 'g') { ev.preventDefault(); generate(); }
+                        if (key === 'c') {
+                            if (document.activeElement && (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA' || document.activeElement.tagName === 'SELECT')) {
+                                return;
+                            }
+                            ev.preventDefault();
+                            copyText(state.output);
+                            log('copy output (shortcut)');
+                        }
+                    }
+                });
+            }
+
+            // Boot/typing animation in terminal
+            function bootSequence(doneCallback) {
+                const lines = [
+                    "Booting Blanko v1.0",
+                    "Initializing unicode tables",
+                    "Probing character maps",
+                    "Allocating buffer",
+                    "Loading terminal subsystem",
+                    "Ready."
+                ];
+
+                let i = 0;
+                const typingSpeed = 24; // ms per char
+                const pauseBetween = 420; // ms between lines
+
+                function typeLine(line, cb) {
+                    const container = document.createElement('div');
+                    container.className = 'line';
+                    const tsSpan = document.createElement('span'); tsSpan.className = 'ts';
+                    const now = `[${ts()}] `;
+                    tsSpan.textContent = now;
+                    container.appendChild(tsSpan);
+
+                    const cmdSpan = document.createElement('span'); cmdSpan.className = 'cmd';
+                    container.appendChild(cmdSpan);
+
+                    elTerm.appendChild(container);
+                    elTerm.scrollTop = elTerm.scrollHeight;
+
+                    let pos = 0;
+                    function tick() {
+                        const ch = line.charAt(pos++);
+                        cmdSpan.textContent = cmdSpan.textContent + ch;
+                        elTerm.scrollTop = elTerm.scrollHeight;
+                        if (pos < line.length) {
+                            setTimeout(tick, typingSpeed + (Math.random() * 10));
+                        } else {
+                            setTimeout(cb, pauseBetween);
+                        }
+                    }
+                    tick();
+                }
+
+                function next() {
+                    if (i < lines.length) {
+                        typeLine(lines[i++], next);
+                    } else {
+                        // final prompt line
+                        const doneLine = document.createElement('div');
+                        doneLine.className = 'line';
+                        doneLine.innerHTML = `<span class="ts">[${ts()}]</span><span class="cmd">$ ready</span>`;
+                        elTerm.appendChild(doneLine);
+                        elTerm.scrollTop = elTerm.scrollHeight;
+                        setTimeout(() => {
+                            doneCallback && doneCallback();
+                        }, 300);
+                    }
+                }
+
+                next();
+            }
+
+            // Initialization sequence only if tablet width
+            function initIfTablet() {
+                if (!isTabletWidth()) {
+                    // Not a tablet - do not initialize
+                    state.initialized = false;
+                    return;
+                }
+                if (state.initialized) return;
+                state.initialized = true;
+
+                // Clear any existing terminal content
+                elTerm.innerHTML = '';
+
+                // Boot animation then full wire-up
+                bootSequence(() => {
+                    state.booted = true;
+                    setStatus('Ready.');
+                    // pre-populate with a random generation (like desktop init)
+                    randomize();
+                    generate();
+                    wireEvents();
+                    // slight initial log
+                    log('init', 'tablet app ready');
+                });
+            }
+
+            // Resize listener: will show/hide messages and (re)initialize when entering tablet range
+            function onResize() {
+                // We rely on CSS to show/hide the panels, but initialization we do here
+                if (isTabletWidth()) {
+                    // show the app (CSS will) and initialize
+                    initIfTablet();
+                } else {
+                    // out of range: optionally clear state or pause timers
+                    // leave state as is; the user may return
+                }
+            }
+
+            // "Check size now" button for not-tablet panel
+            if (tryResizeBtn) {
+                tryResizeBtn.addEventListener('click', () => {
+                    // simply re-check
+                    if (isTabletWidth()) {
+                        // Scroll to top of tablet-app if CSS has switched
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    } else {
+                        // small flash: show current width
+                        const w = window.innerWidth;
+                        const h = window.innerHeight;
+                        alert('Current viewport: ' + w + ' x ' + h + '\nNeed 600px — 1024px width for tablet app.');
+                    }
+                });
+            }
+
+            // Debounced resize
+            let resizeTimer = null;
+            window.addEventListener('resize', () => {
+                clearTimeout(resizeTimer);
+                resizeTimer = setTimeout(onResize, 140);
+            });
+
+            // On load: attempt init if already tablet sized
+            window.addEventListener('load', () => {
+                onResize();
+            });
+
+            // Also attempt to init after DOMContentLoaded
+            document.addEventListener('DOMContentLoaded', () => {
+                onResize();
+            });
+
+            // Expose some debugging helpers on window for testing (only in dev)
+            window.BlankoTablet = {
+                isTabletWidth,
+                state,
+                CHARSETS
+            };
+
+        })();
+    </script>
+
+    <!-- end of file -->
+</body>
+
+</html>

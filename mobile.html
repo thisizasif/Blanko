@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Invisible Text Copier — Mobile</title>
+
+    <style>
+        /* ==========================================================================
+       Variables & base
+       ========================================================================== */
+        :root {
+            --bg: #0b0f14;
+            --panel: #0f1620;
+            --muted: #8190a5;
+            --pri: #39ff88;
+            --pri-2: #12d67a;
+            --accent: #73c3ff;
+            --danger: #ff6b6b;
+            --shadow-lg: 0 20px 40px rgba(0, 0, 0, .45), 0 4px 10px rgba(0, 0, 0, .35);
+            --shadow-md: 0 10px 24px rgba(0, 0, 0, .35), 0 3px 6px rgba(0, 0, 0, .25);
+            --radius: 18px;
+            --radius-sm: 12px;
+            --mono: ui-monospace, "SF Mono", "Menlo", "Monaco", "Consolas", "Liberation Mono", monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background:
+                radial-gradient(1200px 600px at 10% -10%, rgba(57, 255, 136, .08), transparent 60%),
+                radial-gradient(1000px 600px at 110% 10%, rgba(115, 195, 255, .06), transparent 60%),
+                var(--bg);
+            color: #e6f0ff;
+            font-family: var(--mono);
+            letter-spacing: .2px;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            padding-bottom: 28px;
+        }
+
+        /* ==========================================================================
+       Layout wrapper
+       ========================================================================== */
+        .wrap {
+            max-width: 520px;
+            /* mobile-first width */
+            margin: 18px auto;
+            /* center on phones */
+            padding: 0 14px;
+        }
+
+        header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .logo {
+            width: 42px;
+            height: 42px;
+            border-radius: 10px;
+            display: grid;
+            place-items: center;
+            background: linear-gradient(135deg,
+                    rgba(0, 240, 255, 0.9) 0%,
+                    rgba(255, 0, 200, 0.9) 50%,
+                    rgba(255, 150, 0, 0.9) 100%);
+            box-shadow: var(--shadow-md);
+            flex-shrink: 0;
+        }
+
+        .logo:before {
+            content: "\200B";
+        }
+
+        /* zero-width glyph in logo */
+
+        h1 {
+            font-size: 20px;
+            margin: 0;
+            line-height: 1;
+        }
+
+        .tag {
+            font-size: 12px;
+            color: var(--muted);
+            margin-top: 2px;
+            max-width: 360px;
+        }
+
+        /* ==========================================================================
+       Card & panel styles (reused)
+       ========================================================================== */
+        .card {
+            background: linear-gradient(180deg, rgba(255, 255, 255, .02), rgba(255, 255, 255, .01));
+            border-radius: var(--radius);
+            border: 1px solid rgba(130, 160, 200, .12);
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+        }
+
+        .controls {
+            padding: 14px;
+        }
+
+        .controls h2 {
+            margin: 6px 0 10px;
+            font-size: 13px;
+            color: var(--muted);
+            font-weight: 600;
+        }
+
+        /* ==========================================================================
+       Rows / Inputs
+       ========================================================================== */
+        .row {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin: 10px 0;
+        }
+
+        .row.inline {
+            flex-direction: row;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .row label {
+            font-size: 13px;
+            color: #c7d2e0;
+            min-width: 120px;
+        }
+
+        input[type="number"],
+        select,
+        textarea {
+            background: #0c121a;
+            border: 1px solid #293241;
+            color: #e6f0ff;
+            border-radius: 12px;
+            padding: 10px 12px;
+            outline: none;
+            font-size: 14px;
+            width: 100%;
+        }
+
+        input[type="number"]:focus,
+        select:focus,
+        textarea:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(115, 195, 255, .12);
+        }
+
+        /* ==========================================================================
+       Buttons
+       ========================================================================== */
+        .btns {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .btns.row {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        button {
+            -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+            cursor: pointer;
+            border: none;
+            border-radius: 12px;
+            padding: 12px 14px;
+            font-weight: 700;
+            letter-spacing: .4px;
+            background: #121a24;
+            color: #dff9ec;
+            transition: transform .06s ease, filter .14s ease, background .14s ease;
+            font-size: 14px;
+        }
+
+        button:active {
+            transform: translateY(1px);
+        }
+
+        button:hover {
+            filter: brightness(1.06);
+        }
+
+        .primary {
+            background: linear-gradient(180deg, rgba(57, 255, 136, .22), rgba(18, 214, 122, .18));
+            outline: 1px solid rgba(57, 255, 136, .22);
+        }
+
+        .ghost {
+            background: #0f1620;
+            outline: 1px dashed rgba(130, 160, 200, .18);
+            color: #cfe;
+        }
+
+        .danger {
+            background: linear-gradient(180deg, rgba(255, 107, 107, .12), rgba(255, 107, 107, .08));
+            outline: 1px solid rgba(255, 107, 107, .18);
+            color: #ffdcdc;
+        }
+
+        /* ==========================================================================
+       Output preview
+       ========================================================================== */
+        .out {
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .out-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 14px;
+            border-bottom: 1px dashed rgba(130, 160, 200, .12);
+            color: var(--muted);
+            font-size: 13px;
+            gap: 8px;
+        }
+
+        .chip {
+            padding: 6px 10px;
+            border-radius: 20px;
+            background: #0c121a;
+            border: 1px solid rgba(130, 160, 200, .12);
+            font-size: 13px;
+        }
+
+        .view {
+            min-height: 120px;
+            padding: 12px 14px;
+            font-size: 15px;
+            line-height: 1.6;
+            word-break: break-all;
+            color: #dfffe7;
+            background: transparent;
+        }
+
+        .view.revealed span {
+            background: rgba(57, 255, 136, .08);
+            color: #e6f0ff;
+            box-shadow: inset 0 0 0 1px rgba(57, 255, 136, .14);
+            border-radius: 6px;
+            padding: 2px 6px;
+            margin: 1px;
+            display: inline-block;
+        }
+
+        .mini {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 14px;
+            border-top: 1px dashed rgba(130, 160, 200, .08);
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        /* ==========================================================================
+       Switch UI (reveal)
+       ========================================================================== */
+        .switch {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            user-select: none;
+        }
+
+        .switch input[type="checkbox"] {
+            appearance: none;
+            width: 42px;
+            height: 26px;
+            background: #0c121a;
+            border: 1px solid #293241;
+            border-radius: 999px;
+            position: relative;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .switch input[type="checkbox"]:before {
+            content: "";
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #cfe;
+            top: 4px;
+            left: 4px;
+            transition: left .18s ease, background .18s ease;
+        }
+
+        .switch input[type="checkbox"]:checked {
+            border-color: var(--pri-2);
+        }
+
+        .switch input[type="checkbox"]:checked:before {
+            left: 20px;
+            background: #bffadd;
+        }
+
+        /* ==========================================================================
+       Terminal / Log
+       ========================================================================== */
+        .terminal {
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .term-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 12px;
+            background: linear-gradient(180deg, rgba(0, 0, 0, .25), rgba(255, 255, 255, .02));
+            border-bottom: 1px solid rgba(130, 160, 200, .06);
+        }
+
+        .dots {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .dot.r {
+            background: #ff6b6b;
+            box-shadow: 0 0 6px rgba(255, 107, 107, .2);
+        }
+
+        .dot.y {
+            background: #ffd166;
+            box-shadow: 0 0 6px rgba(255, 209, 102, .12);
+        }
+
+        .dot.g {
+            background: #06d6a0;
+            box-shadow: 0 0 6px rgba(6, 214, 160, .12);
+        }
+
+        .term-title {
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        .term-body {
+            padding: 12px;
+            font-size: 13px;
+            color: #b7e9c6;
+            overflow: auto;
+            min-height: 180px;
+            max-height: 260px;
+            background: linear-gradient(180deg, rgba(0, 0, 0, .02), rgba(255, 255, 255, .00));
+        }
+
+        .line {
+            white-space: pre-wrap;
+            margin: 6px 0;
+            font-size: 13px;
+            line-height: 1.45;
+        }
+
+        .line .ts {
+            color: #77c9ff;
+            margin-right: 6px;
+        }
+
+        .line .cmd {
+            color: var(--pri);
+        }
+
+        /* ==========================================================================
+       History list
+       ========================================================================== */
+        .history {
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .history .head {
+            padding: 10px 12px;
+            border-bottom: 1px dashed rgba(130, 160, 200, .08);
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .history .list {
+            padding: 6px 0;
+            max-height: 220px;
+            overflow: auto;
+        }
+
+        .history .item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 10px 12px;
+            border-bottom: 1px dashed rgba(130, 160, 200, .06);
+            background: linear-gradient(180deg, rgba(255, 255, 255, .00), rgba(255, 255, 255, .00));
+        }
+
+        .history .code {
+            font-size: 12px;
+            color: #a5ffd6;
+            word-break: break-all;
+            max-width: 75%;
+        }
+
+        .history .copy {
+            font-size: 12px;
+            padding: 8px 10px;
+            border-radius: 8px;
+            background: transparent;
+            color: #bff;
+            border: 1px solid rgba(130, 160, 200, .06);
+        }
+
+        /* ==========================================================================
+       Footer
+       ========================================================================== */
+        .footer {
+            margin-top: 12px;
+            color: var(--muted);
+            font-size: 12px;
+            text-align: center;
+            padding: 6px 2px;
+        }
+
+        .footer a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        /* ==========================================================================
+       Mobile specific adjustments (ensure it's mobile-first)
+       ========================================================================== */
+        @media (min-width: 740px) {
+
+            /* if a slightly larger device, expand max-width */
+            .wrap {
+                max-width: 720px;
+            }
+
+            .view {
+                min-height: 140px;
+                font-size: 16px;
+            }
+
+            .term-body {
+                min-height: 220px;
+            }
+        }
+
+        /* small phones */
+        @media (max-width: 340px) {
+            .logo {
+                width: 36px;
+                height: 36px;
+            }
+
+            h1 {
+                font-size: 18px;
+            }
+
+            .row label {
+                font-size: 12px;
+            }
+
+            button {
+                font-size: 13px;
+                padding: 10px 12px;
+            }
+        }
+
+        /* small visual niceties */
+        ::-webkit-scrollbar {
+            height: 8px;
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, .04);
+            border-radius: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wrap">
+
+        <header>
+            <div class="logo" aria-hidden="true"></div>
+
+            <div>
+                <h1>Blanko</h1>
+                <div class="tag">Generate and copy zero-width / blank characters for testing, spacing tricks, or
+                    placeholders.</div>
+            </div>
+        </header>
+
+        <!-- =======================================================================
+         Generator card (mobile-first, all inputs + controls)
+         ======================================================================= -->
+        <section class="card controls" aria-label="controls">
+            <h2>Generator</h2>
+
+            <div class="row">
+                <label for="count">Number of characters</label>
+                <input id="count" type="number" min="1" max="100000" step="1" value="64" inputmode="numeric" />
+            </div>
+
+            <div class="row">
+                <label for="type">Character type</label>
+                <select id="type" aria-label="Character type">
+                    <option value="lrm">LRM (\u200E)</option>
+                    <option value="rlm">RLM (\u200F)</option>
+                    <option value="zwsp">ZWSP (\u200B)</option>
+                    <option value="nbsp">NBSP (\u00A0)</option>
+                    <option value="braille">Braille Blank (\u2800)</option>
+                    <option value="mixed" selected>Mixed</option>
+                </select>
+            </div>
+
+            <div class="btns">
+                <button id="gen" class="primary" aria-label="Generate output">Generate</button>
+                <button id="rand" class="ghost" aria-label="Randomize">Random</button>
+                <button id="copy" class="primary" aria-label="Copy output">Copy Output</button>
+                <button id="clear" class="danger" aria-label="Clear output">Clear</button>
+            </div>
+
+            <h2 style="margin-top:14px">Output</h2>
+
+            <div class="card out" style="margin-top:6px;">
+                <div class="out-header">
+                    <div>Length: <span id="len" class="chip">0</span></div>
+
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <div class="switch" title="Reveal blanks">
+                            <label for="reveal"
+                                style="font-size:13px; color:var(--muted); margin-right:6px;">Reveal</label>
+                            <input id="reveal" type="checkbox" aria-label="Reveal blanks" />
+                        </div>
+                    </div>
+                </div>
+
+                <div id="view" class="view" aria-live="polite" role="region" aria-label="Output preview"></div>
+
+                <div class="mini">
+                    <div>Unicode preview glyph: <span id="glyph" class="chip">—</span></div>
+                    <div id="status" style="color:var(--muted)">Ready.</div>
+                </div>
+            </div>
+
+            <div class="btns" style="margin-top:12px;">
+                <button id="copyHistory" class="ghost">Copy History</button>
+                <button id="wipeHistory" class="danger">Wipe History</button>
+            </div>
+        </section>
+
+        <!-- =======================================================================
+         Terminal / Session log
+         ======================================================================= -->
+        <section class="card terminal" aria-label="terminal" style="margin-top:12px;">
+            <div class="term-head">
+                <div class="dots">
+                    <span class="dot r" aria-hidden="true"></span>
+                    <span class="dot y" aria-hidden="true"></span>
+                    <span class="dot g" aria-hidden="true"></span>
+                </div>
+                <div class="term-title">session.log</div>
+            </div>
+
+            <div id="term" class="term-body" role="log" aria-live="polite" aria-label="Terminal output"></div>
+        </section>
+
+        <!-- =======================================================================
+         History
+         ======================================================================= -->
+        <section class="card history" aria-label="history" style="margin-top:12px;">
+            <div class="head history-head" style="padding:10px 12px; color:var(--muted);">Generation History</div>
+            <div id="history" class="list" role="list" aria-label="Generation history list"></div>
+        </section>
+
+        <div class="footer">
+            Tip: Toggle <strong>Reveal</strong> to visualize blanks safely (they’ll show as subtle blocks in the preview
+            only).
+        </div>
+    </div>
+    <footer class="footer">
+        <p>© 2025 Thisizasif • All Rights Reserved</p>
+    </footer>
+
+    <script>
+        /***************************************************************************
+         * Mobile-only Blanko - JavaScript
+         *
+         * Logic kept identical to the desktop version:
+         * - same charsets
+         * - same generate / copy / history behaviors
+         * - same reveal handling
+         *
+         * Formatted and spaced for readability on mobile.
+         ***************************************************************************/
+
+        // Character maps (identical)
+        const CHARSETS = {
+            lrm: "\u200E",
+            rlm: "\u200F",
+            zwsp: "\u200B",
+            nbsp: "\u00A0",
+            braille: "\u2800",
+        };
+
+        const MIXED_KEYS = Object.keys(CHARSETS);
+
+        // Small DOM helper
+        const $ = (sel) => document.querySelector(sel);
+
+        // DOM refs
+        const elCount = $('#count');
+        const elType = $('#type');
+        const elGenerate = $('#gen');
+        const elRandom = $('#rand');
+        const elCopy = $('#copy');
+        const elClear = $('#clear');
+        const elCopyHistory = $('#copyHistory');
+        const elWipeHistory = $('#wipeHistory');
+        const elLen = $('#len');
+        const elView = $('#view');
+        const elReveal = $('#reveal');
+        const elGlyph = $('#glyph');
+        const elTerm = $('#term');
+        const elHistory = $('#history');
+        const elStatus = $('#status');
+
+        // App state
+        const state = {
+            output: "",
+            history: []
+        };
+
+        // Timestamp for logs (24h)
+        function ts() {
+            const d = new Date();
+            return d.toLocaleTimeString([], { hour12: false });
+        }
+
+        // Terminal logging helpers
+        function addLine(main, info = "") {
+            const div = document.createElement('div');
+            div.className = 'line';
+            // ensure we render TS (blue) then command (green) then optional info
+            const parts = main.split('$');
+            const left = parts[0] || '';
+            const right = parts[1] ? ('$' + parts[1]) : '';
+            div.innerHTML = `<span class="ts">${left}</span><span class="cmd">${right}</span> ${escapeHtml(info)}`;
+            elTerm.appendChild(div);
+            // auto-scroll terminal
+            elTerm.scrollTop = elTerm.scrollHeight;
+        }
+
+        function log(cmd, info = "") {
+            addLine(`[${ts()}] $ ${cmd}`, info);
+        }
+
+        // Escape small bits of user content for terminal
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
+        }
+
+        // Small helper: glyph text for UI
+        function glyphFor(type) {
+            const map = { lrm: 'LRM', rlm: 'RLM', zwsp: 'ZWSP', nbsp: 'NBSP', braille: 'BRAILLE' };
+            return map[type] || 'MIXED';
+        }
+
+        // Generate output (keeps original logic)
+        function generate() {
+            // clamp to allowed range
+            const n = Math.max(1, Math.min(100000, Number(elCount.value) || 0));
+            const type = elType.value;
+            let s = '';
+
+            if (type === 'mixed') {
+                for (let i = 0; i < n; i++) {
+                    const k = MIXED_KEYS[Math.floor(Math.random() * MIXED_KEYS.length)];
+                    s += CHARSETS[k];
+                }
+            } else {
+                // repeat the chosen character n times
+                s = CHARSETS[type].repeat(n);
+            }
+
+            state.output = s;
+            elLen.textContent = String(s.length);
+            renderOutput();
+
+            // push history entry (store actual string as in desktop)
+            pushHistory({
+                length: s.length,
+                type: type,
+                text: s
+            });
+
+            log('generate', `type=${type} count=${n}`);
+            setStatus('Generated.');
+        }
+
+        // Render preview (revealed/unrevealed)
+        function renderOutput() {
+            if (elReveal.checked) {
+                // show dot placeholders for each char
+                const chars = Array.from(state.output).map(() => `<span>·</span>`).join('');
+                elView.classList.add('revealed');
+                elView.innerHTML = chars || '<span>—</span>';
+            } else {
+                elView.classList.remove('revealed');
+                // invisible characters are set as text content
+                elView.textContent = state.output;
+            }
+            const t = elType.value;
+            elGlyph.textContent = glyphFor(t);
+        }
+
+        // Clipboard copy with feedback (uses async clipboard)
+        async function copy(text) {
+            try {
+                await navigator.clipboard.writeText(text);
+                setStatus('Copied to clipboard.');
+                return true;
+            } catch (e) {
+                // fallback messaging when clipboard API isn't available
+                setStatus('Copy failed. Select and press Ctrl/Cmd+C.');
+                return false;
+            }
+        }
+
+        // Status update small helper
+        function setStatus(msg) {
+            elStatus.textContent = msg;
+        }
+
+        // Randomize controls (same algorithm)
+        function randomize() {
+            const rCount = Math.floor(Math.random() * 512) + 16; // 16..527
+            const types = Object.keys(CHARSETS).concat('mixed');
+            const rType = types[Math.floor(Math.random() * types.length)];
+            elCount.value = rCount;
+            elType.value = rType;
+            log('random', `type=${rType} count=${rCount}`);
+            setStatus('Randomized.');
+        }
+
+        // History helpers
+        function pushHistory(entry) {
+            state.history.unshift({ ...entry, time: new Date().toISOString() });
+            // cap history to 50 entries (same as desktop)
+            state.history = state.history.slice(0, 50);
+            renderHistory();
+        }
+
+        function renderHistory() {
+            elHistory.innerHTML = '';
+            state.history.forEach((h, idx) => {
+                const row = document.createElement('div');
+                row.className = 'item';
+
+                // compute label number
+                const labelNum = String(state.history.length - idx).padStart(2, '0');
+                const time = new Date(h.time).toLocaleTimeString([], { hour12: false });
+
+                row.innerHTML = `
+          <div class="code">[#${labelNum}] ${escapeHtml(time)} · ${escapeHtml(h.type)} · len=${h.length}</div>
+          <div>
+            <button class="copy" data-idx="${idx}">Copy</button>
+          </div>`.trim();
+
+                elHistory.appendChild(row);
+            });
+        }
+
+        function historyToText() {
+            return state.history.map(h => `${h.time}\t${h.type}\tlen=${h.length}`).join('\n');
+        }
+
+        // Event wiring
+        elGenerate.addEventListener('click', generate);
+        elRandom.addEventListener('click', randomize);
+        elReveal.addEventListener('change', renderOutput);
+
+        elCopy.addEventListener('click', () => {
+            copy(state.output);
+            log('copy output');
+        });
+
+        elClear.addEventListener('click', () => {
+            state.output = '';
+            renderOutput();
+            elLen.textContent = '0';
+            log('clear');
+            setStatus('Cleared.');
+        });
+
+        elCopyHistory.addEventListener('click', async () => {
+            await copy(historyToText());
+            log('copy history');
+        });
+
+        elWipeHistory.addEventListener('click', () => {
+            state.history = [];
+            renderHistory();
+            log('wipe history');
+            setStatus('History wiped.');
+        });
+
+        // Delegate history copy buttons
+        elHistory.addEventListener('click', (e) => {
+            const btn = e.target.closest('button.copy');
+            if (!btn) return;
+            const idx = Number(btn.dataset.idx);
+            const h = state.history[idx];
+            if (!h) return;
+            copy(h.text); // copy the stored blank string
+            log('copy from history', `idx=${idx}`);
+        });
+
+        // Accessibility: keyboard shortcuts (mobile browsers may ignore, but harmless)
+        (function keyboardShortcuts() {
+            // on devices with keyboards, provide simple shortcuts
+            document.addEventListener('keydown', (ev) => {
+                if (ev.ctrlKey || ev.metaKey) {
+                    const key = ev.key.toLowerCase();
+                    if (key === 'g') { // Ctrl/Cmd+G -> generate
+                        ev.preventDefault(); generate();
+                    } else if (key === 'c') { // Ctrl/Cmd+C -> copy output
+                        // only when focus is not on an input
+                        if (document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA' && document.activeElement.tagName !== 'SELECT') {
+                            ev.preventDefault(); copy(state.output);
+                        }
+                    }
+                }
+            });
+        })();
+
+        // Initialize: mimic desktop startup sequence
+        (function init() {
+            // Ensure sensible bounds on load
+            if (!elCount.value) elCount.value = 64;
+            randomize();
+            generate();
+            setStatus('Ready.');
+            log('init', 'app started');
+        })();
+    </script>
+</body>
+
+</html>
